@@ -15,7 +15,6 @@ public class Cult : DbItem<int>
   [Range(typeof(decimal), "0", "9999999", ErrorMessage = "That fee is simply unacceptable... the value must be between {0}, {1}")]
   public decimal Fee { get; set; }
   public string CoverImg { get; set; } = "";
-  [Required]
   public string LeaderId { get; set; }
 
   // populated properties

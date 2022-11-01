@@ -3,10 +3,12 @@ namespace Instacult.Services;
 public class CultsService
 {
   private readonly CultsRepository _cultsRepo;
+  private readonly CultMembersRepository _cmRepo;
 
-  public CultsService(CultsRepository cultsRepo)
+  public CultsService(CultsRepository cultsRepo, CultMembersRepository cmRepo)
   {
     _cultsRepo = cultsRepo;
+    _cmRepo = cmRepo;
   }
 
 
@@ -31,8 +33,14 @@ public class CultsService
 
     var cult = _cultsRepo.Create(cultData);
     // TODO add current user as a cult member....
-    return cult;
+    var cm = _cmRepo.Create(new FreshMeatDTO()
+    {
+      AccountId = userId,
+      CultId = cult.Id,
+      MemberRole = "Leader"
+    });
 
+    return cult;
   }
 
 
@@ -47,6 +55,11 @@ public class CultsService
     _cultsRepo.Delete(cultId);
   }
 
+  internal List<CultMember> GetCultMembers(int cultId)
+  {
+    List<CultMember> cultists = _cmRepo.GetCultMembersByCultId(cultId);
+    return cultists;
+  }
 
   public Cult UpdateCult(Cult cultData, string userId)
   {
@@ -65,5 +78,50 @@ public class CultsService
     return _cultsRepo.Update(originalCult);
   }
 
+  internal CultMember JoinCult(int cultId, SecretHandshake handshake, Profile userInfo)
+  {
+    if (handshake.Handshake != "👋🤚🖐️🖖✌️")
+    {
+      throw new Exception("🗡️ ---- 🩸 ---- 💀⚰️");
+    }
 
+    var cult = GetCultById(cultId);
+
+    var isMember = _cmRepo.Get(userInfo.Id, cultId);
+
+    if (isMember != null)
+    {
+      throw new Exception("You are already a member of this cult!!!");
+    }
+
+    // PROCESS PAYMENT
+
+
+    var newCultist = new FreshMeatDTO()
+    {
+      AccountId = userInfo.Id,
+      CultId = cultId,
+      MemberRole = "Cultist"
+    };
+
+    var freshMeat = _cmRepo.Create(newCultist);
+
+    return new CultMember()
+    {
+      Id = userInfo.Id,
+      Bio = userInfo.Bio,
+      Name = userInfo.Name,
+      Picture = userInfo.Picture,
+      CoverImg = userInfo.CoverImg,
+      CultId = freshMeat.CultId,
+      CreatedAt = freshMeat.CreatedAt,
+      UpdatedAt = freshMeat.UpdatedAt,
+      MemberRole = freshMeat.MemberRole,
+      CultMemberId = freshMeat.CultMemberId,
+    };
+
+
+
+
+  }
 }

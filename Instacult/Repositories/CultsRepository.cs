@@ -17,6 +17,8 @@ public class CultsRepository : BaseRepo, IRepository<Cult, int>
       );
       SELECT LAST_INSERT_ID()
     ;";
+    cult.CreatedAt = DateTime.Now;
+    cult.UpdatedAt = DateTime.Now;
     cult.Id = _db.ExecuteScalar<int>(sql, cult);
     return cult;
   }

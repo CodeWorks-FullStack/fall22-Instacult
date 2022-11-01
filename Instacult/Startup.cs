@@ -34,6 +34,8 @@ public class Startup
     services.AddScoped<AccountsRepository>();
     services.AddScoped<AccountService>();
 
+    services.AddTransient<CultMembersRepository>();
+
     services.AddTransient<CultsRepository>();
     services.AddTransient<CultsService>();
   }

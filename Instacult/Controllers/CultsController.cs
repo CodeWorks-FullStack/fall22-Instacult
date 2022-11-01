@@ -4,7 +4,6 @@ namespace Instacult.Controllers;
 [Route("api/[controller]")]
 public class CultsController : ControllerBase
 {
-
   private readonly CultsService _cs;
   private readonly Auth0Provider _a0;
 
@@ -43,6 +42,24 @@ public class CultsController : ControllerBase
   }
 
 
+  [HttpGet("{cultId}/members")]
+  public ActionResult<List<CultMember>> GetCultMembersByCultId(int cultId)
+  {
+    try
+    {
+      List<CultMember> cultists = _cs.GetCultMembers(cultId);
+      return Ok(cultists);
+    }
+    catch (Exception e)
+    {
+      return BadRequest(e.Message);
+    }
+  }
+
+
+  #region Authorized Routes
+
+
   [HttpPost]
   [Authorize]
   public async Task<ActionResult<Cult>> Create([FromBody] Cult cultData)
@@ -52,6 +69,22 @@ public class CultsController : ControllerBase
       var userInfo = await _a0.GetUserInfoAsync<Account>(HttpContext);
       var cult = _cs.CreateCult(cultData, userInfo.Id);
       return Ok(cult);
+    }
+    catch (Exception e)
+    {
+      return BadRequest(e.Message);
+    }
+  }
+
+  [Authorize]
+  [HttpPost("{cultId}/members")]
+  public async Task<ActionResult<CultMember>> JoinCult([FromBody] SecretHandshake handshake, int cultId, [FromQuery] string offset, [FromQuery] string take)
+  {
+    try
+    {
+      Profile userInfo = await _a0.GetUserInfoAsync<Profile>(HttpContext);
+      CultMember cultist = _cs.JoinCult(cultId, handshake, userInfo);
+      return Ok(cultist);
     }
     catch (Exception e)
     {
@@ -91,7 +124,5 @@ public class CultsController : ControllerBase
     }
   }
 
-
-
-
+  #endregion
 }
