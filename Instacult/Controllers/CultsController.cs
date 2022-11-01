@@ -14,7 +14,7 @@ public class CultsController : ControllerBase
   }
 
   [HttpGet]
-  public ActionResult<List<Cult>> Get()
+  public ActionResult<List<Cult>> Get([FromQuery] string offset, [FromQuery] string take)
   {
     try
     {
@@ -78,7 +78,7 @@ public class CultsController : ControllerBase
 
   [Authorize]
   [HttpPost("{cultId}/members")]
-  public async Task<ActionResult<CultMember>> JoinCult([FromBody] SecretHandshake handshake, int cultId, [FromQuery] string offset, [FromQuery] string take)
+  public async Task<ActionResult<CultMember>> JoinCult([FromBody] SecretHandshake handshake, int cultId)
   {
     try
     {
